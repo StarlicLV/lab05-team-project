@@ -1,0 +1,71 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_order_macros.html" import orders_subnav, status_badge %}
+
+{% block title %}Замовлення №{{ order.id }}{% endblock %}
+
+{% block admin_content %}
+{{ orders_subnav('orders') }}
+
+<div class="mb-4 flex flex-wrap items-center gap-3">
+    <h2 class="text-2xl font-bold">Замовлення №{{ order.id }}</h2>
+    {{ status_badge(order.status, statuses[order.status]) }}
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Клієнт і доставка -->
+    <div class="rounded-lg bg-white p-5 shadow-md dark:bg-gray-800">
+        <h3 class="mb-2 text-lg font-bold">Клієнт</h3>
+        <p>{{ order.customer_name }}</p>
+        <p>{{ order.phone }}</p>
+        {% if order.email %}<p>{{ order.email }}</p>{% endif %}
+        <h3 class="mb-1 mt-4 text-lg font-bold">Доставка</h3>
+        <p>{{ order.address }}</p>
+        {% if order.comment %}<p class="mt-2 text-gray-600 dark:text-gray-300">Коментар: {{ order.comment }}</p>{% endif %}
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Створено: {{ order.created_at }}</p>
+    </div>
+
+    <!-- Зміна статусу: POST-форма -->
+    <div class="rounded-lg bg-white p-5 shadow-md dark:bg-gray-800 self-start">
+        <h3 class="mb-2 text-lg font-bold">Змінити статус</h3>
+        <form method="post" action="{{ url_for('orders.update_order_status', order_id=order.id) }}" class="flex flex-wrap gap-2">
+            <select name="status" class="rounded border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700">
+                {% for key, label in statuses.items() %}
+                <option value="{{ key }}" {{ 'selected' if key == order.status }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="rounded-lg bg-amber-700 px-4 py-2 font-bold text-white transition-colors hover:bg-amber-800">Зберегти</button>
+        </form>
+    </div>
+</div>
+
+<!-- Позиції замовлення (JOIN order_items + products) -->
+<div class="mt-6 overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-800">
+    <table class="w-full text-left">
+        <thead class="bg-amber-700 text-white">
+            <tr>
+                <th class="p-3">Товар</th>
+                <th class="p-3 text-right">Ціна на момент замовлення</th>
+                <th class="p-3 text-right">К-сть</th>
+                <th class="p-3 text-right">Сума</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="p-3">{{ item.name }}</td>
+                <td class="p-3 text-right">{{ '%.2f'|format(item.price_at_order) }} грн</td>
+                <td class="p-3 text-right">{{ item.quantity }}</td>
+                <td class="p-3 text-right">{{ '%.2f'|format(item.line_total) }} грн</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4 text-right">
+    {% if order.discount %}
+    <p class="text-green-700 dark:text-green-400">Промокод {{ order.promo_code }}: −{{ '%.2f'|format(order.discount) }} грн</p>
+    {% endif %}
+    <p class="text-xl font-bold">Разом: {{ '%.2f'|format(order.total) }} грн</p>
+</div>
+{% endblock %}

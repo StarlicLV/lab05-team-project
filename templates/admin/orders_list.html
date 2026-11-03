@@ -1,0 +1,52 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_order_macros.html" import orders_subnav, status_badge %}
+
+{% block title %}Замовлення{% endblock %}
+
+{% block admin_content %}
+{{ orders_subnav('orders') }}
+
+<!-- Фільтр за статусом: GET-форма, параметр ?status= -->
+<form method="get" class="mb-4 flex flex-wrap items-center gap-2">
+    <label for="status" class="font-semibold">Статус:</label>
+    <select id="status" name="status" onchange="this.form.submit()"
+            class="rounded border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700">
+        <option value="">Усі</option>
+        {% for key, label in statuses.items() %}
+        <option value="{{ key }}" {{ 'selected' if key == current_status }}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <noscript><button type="submit" class="rounded bg-amber-700 px-3 py-2 text-white">Показати</button></noscript>
+</form>
+
+{% if orders %}
+<div class="overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-800">
+    <table class="w-full text-left">
+        <thead class="bg-amber-700 text-white">
+            <tr>
+                <th class="p-3">№</th>
+                <th class="p-3">Клієнт</th>
+                <th class="p-3">Статус</th>
+                <th class="p-3 text-right">Сума</th>
+                <th class="p-3">Дата</th>
+                <th class="p-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="p-3">{{ o.id }}</td>
+                <td class="p-3">{{ o.customer_name }}<div class="text-sm text-gray-500 dark:text-gray-400">{{ o.phone }}</div></td>
+                <td class="p-3">{{ status_badge(o.status, statuses[o.status]) }}</td>
+                <td class="p-3 text-right">{{ '%.2f'|format(o.total) }} грн</td>
+                <td class="p-3">{{ o.created_at }}</td>
+                <td class="p-3"><a href="{{ url_for('orders.admin_order_detail', order_id=o.id) }}" class="font-semibold text-amber-700 hover:underline dark:text-amber-300">Відкрити</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-gray-600 dark:text-gray-300">Замовлень{{ ' з таким статусом' if current_status }} поки немає.</p>
+{% endif %}
+{% endblock %}

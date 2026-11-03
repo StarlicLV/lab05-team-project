@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Доставка{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-amber-900 dark:text-amber-200 mt-6 mb-2">Замовлення і доставка</h1>
+<p class="text-stone-600 dark:text-stone-300 mb-8">Свіжі десерти й кава з доставкою додому або в офіс.</p>
+
+<h2 class="text-2xl font-bold text-amber-900 dark:text-amber-200 mb-4">Як це працює</h2>
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
+    {% for icon, title, text in [
+        ('📋', 'Оберіть десерти', 'Перегляньте меню та складіть список.'),
+        ('📞', 'Зателефонуйте', 'Назвіть адресу адміністратору.'),
+        ('👩‍🍳', 'Ми готуємо', 'Збираємо замовлення зі свіжих десертів.'),
+        ('🚴', "Кур'єр їде до вас", 'Привозимо акуратно запакованим.')
+    ] %}
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md text-center">
+        <div class="text-4xl mb-2" aria-hidden="true">{{ icon }}</div>
+        <h3 class="font-bold mb-1">{{ loop.index }}. {{ title }}</h3>
+        <p class="text-sm text-stone-600 dark:text-stone-300">{{ text }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<h2 class="text-2xl font-bold text-amber-900 dark:text-amber-200 mb-4">Зони та вартість</h2>
+<div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md mb-10">
+    <table class="w-full text-left">
+        <thead class="bg-amber-900 dark:bg-amber-800 text-white">
+            <tr>
+                <th class="p-3">Зона</th>
+                <th class="p-3">Час</th>
+                <th class="p-3">Вартість</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zone, time, price in [
+                ('Центр міста', '30-40 хв', '40 грн'),
+                ('Спальні райони', '40-60 хв', '60 грн'),
+                ('Околиці', '60-90 хв', '90 грн')
+            ] %}
+            <tr class="border-t border-stone-200 dark:border-stone-700">
+                <td class="p-3">{{ zone }}</td>
+                <td class="p-3">{{ time }}</td>
+                <td class="p-3 font-bold text-amber-900 dark:text-amber-200">{{ price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 class="font-bold text-xl mb-3 text-amber-900 dark:text-amber-200">💳 Оплата</h2>
+        <ul class="list-disc list-inside space-y-1">
+            <li>Готівкою кур'єру</li>
+            <li>Карткою через термінал</li>
+            <li>Переказом на картку</li>
+        </ul>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 class="font-bold text-xl mb-3 text-amber-900 dark:text-amber-200">🕘 Час роботи</h2>
+        <p>Щодня з 9:00 до 20:30.</p>
+        <p class="mt-4 font-bold text-amber-900 dark:text-amber-200">📞 +380 00 000 00 00</p>
+    </div>
+</div>
+<div class="mt-10 rounded-lg bg-white p-6 text-center shadow-md dark:bg-gray-800">
+    <h2 class="mb-2 text-xl font-bold text-amber-900 dark:text-amber-200">Готові замовити?</h2>
+    <p class="mb-4 text-stone-600 dark:text-stone-300">Додайте десерти в кошик і оформіть замовлення з доставкою.</p>
+    <div class="flex flex-wrap justify-center gap-3">
+        <a href="{{ url_for('cart.view_cart') }}"
+           class="rounded-lg border border-amber-700 px-5 py-2 font-bold text-amber-700 transition-colors hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-gray-700">Перейти до кошика</a>
+        <a href="{{ url_for('orders.checkout') }}"
+           class="rounded-lg bg-amber-700 px-5 py-2 font-bold text-white transition-colors hover:bg-amber-800">Оформити замовлення</a>
+    </div>
+</div>
+{% endblock %}

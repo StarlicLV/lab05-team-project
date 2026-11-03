@@ -1,0 +1,45 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Відгуки{% endblock %}
+
+{% block admin_content %}
+<h2 class="mb-4 text-2xl font-bold">Відгуки</h2>
+
+{% if feedback %}
+<div class="overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-800">
+    <table class="w-full text-left">
+        <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+                <th class="p-3">Дата</th>
+                <th class="p-3">Ім’я</th>
+                <th class="p-3">Email</th>
+                <th class="p-3">Повідомлення</th>
+                <th class="p-3"><span class="sr-only">Дії</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in feedback %}
+            <tr class="border-b border-gray-100 align-top dark:border-gray-700">
+                <td class="p-3 whitespace-nowrap">{{ f.created_at }}</td>
+                <td class="p-3">{{ f.name }}</td>
+                <td class="p-3">{{ f.email }}</td>
+                <td class="p-3 whitespace-pre-line">{{ f.message }}</td>
+                <td class="p-3">
+                    {# Видалення лише через POST #}
+                    <form method="post" action="{{ url_for('feedback.admin_delete', feedback_id=f.id) }}"
+                          onsubmit="return confirm('Видалити цей відгук?');">
+                        <button type="submit"
+                                class="cursor-pointer rounded bg-red-600 px-3 py-1 text-white transition-colors hover:bg-red-700">
+                            Видалити
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-stone-600 dark:text-stone-300">Відгуків поки немає.</p>
+{% endif %}
+{% endblock %}

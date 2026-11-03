@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Меню{% endblock %}
+
+{% block content %}
+<!-- Вступ -->
+<section>
+    <h1 class="text-4xl font-bold mb-4 text-amber-900 dark:text-amber-200">Наше меню</h1>
+    <p class="text-lg mb-6 max-w-prose">
+        Кава з свіжообсмажених зерен і десерти, які ми печемо щоранку.
+        Асортимент змінюється разом із сезоном. Ціни вказано в гривнях.
+    </p>
+
+    <!-- Швидка навігація по категоріях (якорі на розділи нижче) -->
+    <nav aria-label="Категорії меню" class="flex flex-wrap gap-3">
+        {% for category in categories %}
+        <a href="#{{ category.id }}"
+           class="rounded-lg border border-amber-700 px-4 py-2 text-amber-800 transition-colors duration-300 hover:bg-amber-100 dark:border-amber-300 dark:text-amber-200 dark:hover:bg-gray-800">
+            <span aria-hidden="true">{{ category.icon }}</span> {{ category.title }}
+        </a>
+        {% endfor %}
+    </nav>
+</section>
+
+<!-- Категорії: кожна має заголовок і сітку карток з позиціями -->
+{% for category in categories %}
+<section id="{{ category.id }}" class="mt-14 scroll-mt-4">
+    <h2 class="text-2xl font-bold mb-6 text-amber-900 dark:text-amber-200">
+        <span aria-hidden="true">{{ category.icon }}</span> {{ category.title }}
+    </h2>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for item in category["items"] %}
+        <article class="flex flex-col rounded-lg bg-white p-5 shadow-md transition-transform duration-300 hover:-translate-y-1 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold mb-1">{{ item.name }}</h3>
+            <p class="mb-4 grow">{{ item.desc }}</p>
+            <p class="text-xl font-bold text-amber-700 dark:text-amber-300">{{ item.price }} грн</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endfor %}
+
+<!-- Підказка внизу -->
+<section class="mt-14 rounded-lg bg-amber-100 p-6 dark:bg-gray-800">
+    <h2 class="text-2xl font-bold mb-2 text-amber-900 dark:text-amber-200">Не знаєте, що обрати?</h2>
+    <p class="max-w-prose">
+        Візьміть флет-вайт до чізкейку або еспресо до брауні. Бариста з радістю
+        підкаже поєднання під ваш смак.
+    </p>
+</section>
+{% endblock %}

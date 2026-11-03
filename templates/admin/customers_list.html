@@ -1,0 +1,38 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Клієнти{% endblock %}
+
+{% block admin_content %}
+<h2 class="text-2xl font-bold mb-4">Клієнти</h2>
+
+{% if customers %}
+<div class="overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-800">
+    <table class="w-full text-left">
+        <thead class="bg-amber-700 text-white">
+            <tr>
+                <th class="p-3">№</th>
+                <th class="p-3">Ім’я</th>
+                <th class="p-3">Телефон</th>
+                <th class="p-3">Email</th>
+                <th class="p-3 text-right">Замовлень</th>
+                <th class="p-3">Створено</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="p-3">{{ c.id }}</td>
+                <td class="p-3">{{ c.name }}</td>
+                <td class="p-3">{{ c.phone }}</td>
+                <td class="p-3">{{ c.email or '—' }}</td>
+                <td class="p-3 text-right">{{ c.orders_count }}</td>
+                <td class="p-3">{{ c.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-gray-600 dark:text-gray-300">Клієнтів поки немає.</p>
+{% endif %}
+{% endblock %}

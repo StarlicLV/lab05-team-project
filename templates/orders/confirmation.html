@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Замовлення №{{ order.id }} прийнято{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+    <h1 class="mb-2 text-3xl font-bold text-amber-900 dark:text-amber-200">Дякуємо за замовлення!</h1>
+    <p class="mb-4 text-lg">Номер вашого замовлення: <strong>№{{ order.id }}</strong></p>
+    <p class="mb-4 text-gray-600 dark:text-gray-300">
+        Статус: <strong>{{ statuses[order.status] }}</strong>.
+        Ми зателефонуємо вам для підтвердження, {{ order.customer_name }}.
+    </p>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="py-2">Товар</th>
+                    <th class="py-2 text-right">К-сть</th>
+                    <th class="py-2 text-right">Сума</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr class="border-b border-gray-100 dark:border-gray-700">
+                    <td class="py-2">{{ item.name }}</td>
+                    <td class="py-2 text-right">{{ item.quantity }}</td>
+                    <td class="py-2 text-right">{{ '%.2f'|format(item.line_total) }} грн</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if order.discount %}
+    <p class="mt-3 text-green-700 dark:text-green-400">Промокод {{ order.promo_code }}: знижка {{ '%.2f'|format(order.discount) }} грн</p>
+    {% endif %}
+    <p class="mt-2 text-xl font-bold">До сплати: {{ '%.2f'|format(order.total) }} грн</p>
+    <p class="mt-2 text-gray-600 dark:text-gray-300">Адреса доставки: {{ order.address }}</p>
+
+    <a href="{{ url_for('home') }}"
+       class="mt-6 inline-block rounded-lg bg-amber-700 px-4 py-2 font-bold text-white transition-colors hover:bg-amber-800">На головну</a>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Адмін-панель — огляд{% endblock %}
+
+{% block admin_content %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {% for label, value, endpoint in [
+        ('Відгуки', counts.feedback, 'feedback.admin_list'),
+        ('Товари', counts.products, 'shop.admin_products'),
+        ('Замовлення', counts.orders, 'orders.admin_orders'),
+        ('Клієнти', counts.customers, 'customers.admin_customers')
+    ] %}
+    <a href="{{ url_for(endpoint) }}"
+       class="rounded-lg bg-white p-5 shadow-md transition-transform duration-300 hover:scale-105 dark:bg-gray-800">
+        <div class="text-4xl font-bold text-amber-900 dark:text-amber-200">{{ value }}</div>
+        <div class="mt-1 text-stone-600 dark:text-stone-300">{{ label }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

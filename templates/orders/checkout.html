@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Оформлення замовлення{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-amber-900 dark:text-amber-200 mb-6">Оформлення замовлення</h1>
+
+{# Повідомлення flash (публічний base.html їх сам не показує) #}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="rounded-lg bg-amber-100 px-4 py-3 text-amber-900 dark:bg-gray-800 dark:text-amber-200">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+    <!-- Форма клієнта -->
+    <form method="post" class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 space-y-4" novalidate>
+        {% macro field(name, label, type='text', required=True, placeholder='') %}
+        <div>
+            <label for="{{ name }}" class="block mb-1 font-semibold">{{ label }}{% if required %} *{% endif %}</label>
+            <input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ form[name] }}" placeholder="{{ placeholder }}"
+                   class="w-full rounded border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700
+                          {{ 'border-red-500' if errors[name] }}">
+            {% if errors[name] %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors[name] }}</p>{% endif %}
+        </div>
+        {% endmacro %}
+
+        {{ field('name', 'Ім’я') }}
+        {{ field('phone', 'Телефон', 'tel', True, '+380501112233') }}
+        {{ field('email', 'Email (необов’язково)', 'email', False) }}
+        {{ field('address', 'Адреса доставки') }}
+
+        <div>
+            <label for="comment" class="block mb-1 font-semibold">Коментар до замовлення</label>
+            <textarea id="comment" name="comment" rows="3"
+                      class="w-full rounded border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700">{{ form.comment }}</textarea>
+        </div>
+
+        {{ field('promo_code', 'Промокод', 'text', False, 'Наприклад, SWEET10') }}
+
+        <button type="submit"
+                class="w-full rounded-lg bg-amber-700 px-4 py-3 font-bold text-white transition-colors hover:bg-amber-800">
+            Підтвердити замовлення
+        </button>
+    </form>
+
+    <!-- Склад кошика й сума -->
+    <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 self-start">
+        <h2 class="mb-4 text-xl font-bold">Ваше замовлення</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="py-2">Товар</th>
+                        <th class="py-2 text-right">К-сть</th>
+                        <th class="py-2 text-right">Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr class="border-b border-gray-100 dark:border-gray-700">
+                        <td class="py-2">{{ item.name }} <span class="text-sm text-gray-500 dark:text-gray-400">({{ '%.2f'|format(item.price) }} грн)</span></td>
+                        <td class="py-2 text-right">{{ item.quantity }}</td>
+                        <td class="py-2 text-right">{{ '%.2f'|format(item.sum) }} грн</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <dl class="mt-4 space-y-1">
+            <div class="flex justify-between"><dt>Разом</dt><dd>{{ '%.2f'|format(subtotal) }} грн</dd></div>
+            {% if promo %}
+            <div class="flex justify-between text-green-700 dark:text-green-400">
+                <dt>Промокод {{ promo.code }} (−{{ promo.discount_percent }}%)</dt>
+                <dd>−{{ '%.2f'|format(discount) }} грн</dd>
+            </div>
+            {% endif %}
+            <div class="flex justify-between border-t border-gray-200 pt-2 text-lg font-bold dark:border-gray-700">
+                <dt>До сплати</dt><dd>{{ '%.2f'|format(total) }} грн</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+{% endblock %}

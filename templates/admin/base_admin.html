@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Адмін-панель{% endblock %}
+
+{% block content %}
+{# Вкладки адмін-панелі: (endpoint, підпис). Активна вкладка визначається за blueprint-ом. #}
+{% set tabs = [
+    ('admin.index', 'Огляд'),
+    ('feedback.admin_list', 'Відгуки'),
+    ('shop.admin_products', 'Товари'),
+    ('orders.admin_orders', 'Замовлення'),
+    ('customers.admin_customers', 'Клієнти'),
+] %}
+<h1 class="text-3xl font-bold text-amber-900 dark:text-amber-200 mb-4">Адмін-панель</h1>
+
+<nav class="mb-6 flex flex-wrap gap-2" aria-label="Розділи адмін-панелі">
+    {% for endpoint, label in tabs %}
+    {% set active = request.endpoint and request.endpoint.split('.')[0] == endpoint.split('.')[0] %}
+    <a href="{{ url_for(endpoint) }}"
+       class="rounded-lg px-4 py-2 transition-colors duration-300
+              {{ 'bg-amber-700 text-white' if active else 'bg-white text-amber-900 hover:bg-amber-100 dark:bg-gray-800 dark:text-amber-200 dark:hover:bg-gray-700' }}">
+        {{ label }}
+    </a>
+    {% endfor %}
+</nav>
+
+{# Повідомлення після дій (flash): «Відгук видалено» тощо #}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="rounded-lg bg-amber-100 px-4 py-3 text-amber-900 dark:bg-gray-800 dark:text-amber-200">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+{% block admin_content %}{% endblock %}
+{% endblock %}

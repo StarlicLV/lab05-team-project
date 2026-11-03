@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Our Flask Project{% endblock %}</title>
+
+    <!-- Застосовуємо збережену тему ДО відображення сторінки, щоб не було «спалаху» світлої теми -->
+    <script>
+        (function () {
+            let theme = null;
+            try { theme = localStorage.getItem('theme'); } catch (e) {}
+            if (!theme) {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        })();
+    </script>
+
+    <!-- Tailwind CSS 4 через CDN (для навчання та прототипів) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Темна тема керується класом .dark на <html>, а не налаштуваннями системи -->
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+    </style>
+
+    <style>
+        .dark { color-scheme: dark; }
+
+        @keyframes slideDown {
+            0% { max-height: 0; opacity: 0; }
+            100% { max-height: 300px; opacity: 1; }
+        }
+        @keyframes slideUp {
+            0% { max-height: 300px; opacity: 1; }
+            100% { max-height: 0; opacity: 0; }
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.3s ease-in forwards;
+        }
+        /* Три лінії «бургера»: верхня, середня, нижня */
+        .burger-line {
+            transition: all 0.3s ease-in-out;
+        }
+        .line1 { top: 4px; }
+        .line2 { top: 11px; }
+        .line3 { top: 18px; }
+        /* Відкрите меню: верхня й нижня лінії утворюють хрестик, середня зникає */
+        .open .line1 {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .open .line2 {
+            opacity: 0;
+        }
+        .open .line3 {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <nav class="bg-blue-500 dark:bg-gray-800 p-4">
+        <div class="w-full flex justify-between items-center">
+            <a href="{{ url_for('home') }}" class="text-white text-xl font-bold transition-transform duration-300 hover:scale-110">Наш проєкт</a>
+
+            <!-- Меню для широких екранів -->
+            <div class="hidden md:flex space-x-4">
+                <a href="{{ url_for('home') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Головна</a>
+                <a href="{{ url_for('shop.menu') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Асортимент</a>
+                <a href="{{ url_for('delivery') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Доставка</a>
+                <a href="{{ url_for('about') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Про нас</a>
+                <a href="{{ url_for('cart.view_cart') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Кошик</a>
+                <a href="{{ url_for('feedback.feedback_form') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">Зворотній зв'язок</a>
+                <a href="{{ url_for('admin.index') }}" class="text-white hover:text-blue-200 transition-colors duration-300 hover:underline">AdminPanel</a>
+            </div>
+
+            <!-- Кнопка теми та кнопка меню (видно на всіх розмірах екрана) -->
+            <div class="flex items-center gap-4">
+                <!-- Перемикач темної теми: місяць у світлій темі, сонце — у темній -->
+                <button id="theme-toggle" type="button" aria-label="Перемкнути тему" aria-pressed="false"
+                        class="text-white cursor-pointer rounded p-1 transition-transform duration-300 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                    <!-- Місяць -->
+                    <svg class="w-6 h-6 dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <!-- Сонце -->
+                    <svg class="w-6 h-6 hidden dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                </button>
+
+                <!-- Кнопка меню для мобільних пристроїв -->
+                <button id="mobile-menu-button" type="button" aria-label="Відкрити меню" aria-expanded="false"
+                        class="md:hidden text-white w-6 h-6 relative cursor-pointer focus:outline-none">
+                    <span class="burger-line line1 block absolute left-0 h-0.5 w-6 bg-current"></span>
+                    <span class="burger-line line2 block absolute left-0 h-0.5 w-6 bg-current"></span>
+                    <span class="burger-line line3 block absolute left-0 h-0.5 w-6 bg-current"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Мобільне меню (приховане за замовчуванням) -->
+        <div id="mobile-menu" class="hidden md:hidden overflow-hidden">
+            <a href="{{ url_for('home') }}" class="block text-white hover:text-blue-200 py-2 transition duration-300 hover:translate-x-2">Головна</a>
+            <a href="#" class="block text-white hover:text-blue-200 py-2 transition duration-300 hover:translate-x-2">Магазин</a>
+            <a href="{{ url_for('about') }}" class="block text-white hover:text-blue-200 py-2 transition duration-300 hover:translate-x-2">Про нас</a>
+            <a href="#" class="block text-white hover:text-blue-200 py-2 transition duration-300 hover:translate-x-2">Зворотний зв'язок</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8 p-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            const isOpen = mobileMenuButton.classList.toggle('open');
+            mobileMenuButton.setAttribute('aria-expanded', isOpen);
+            mobileMenuButton.setAttribute('aria-label', isOpen ? 'Закрити меню' : 'Відкрити меню');
+
+            if (isOpen) {
+                mobileMenu.classList.remove('hidden', 'animate-slide-up');
+                mobileMenu.classList.add('animate-slide-down');
+            } else {
+                mobileMenu.classList.remove('animate-slide-down');
+                mobileMenu.classList.add('animate-slide-up');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300);
+            }
+        });
+
+        // Перемикання темної теми
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.setAttribute('aria-pressed', document.documentElement.classList.contains('dark'));
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            themeToggle.setAttribute('aria-pressed', isDark);
+            try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+        });
+    </script>
+</body>
+</html>
