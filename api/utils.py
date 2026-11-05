@@ -119,3 +119,29 @@ def get_enum_arg(name, allowed, default):
     if value not in allowed:
         raise ApiError(400, f'Параметр {name} має бути одним із: {", ".join(allowed)}')
     return value
+
+
+def get_float_arg(name):
+    """Необовʼязковий числовий параметр запиту (None, якщо не передано)."""
+    raw = request.args.get(name)
+    if raw is None or raw == '':
+        return None
+    try:
+        value = float(raw)
+    except ValueError:
+        raise ApiError(400, f'Параметр {name} має бути числом')
+    if math.isnan(value) or math.isinf(value):
+        raise ApiError(400, f'Параметр {name} має бути числом')
+    return value
+
+
+def get_bool_arg(name):
+    """Необовʼязковий параметр ?name=true/false/1/0 -> 1, 0 або None."""
+    raw = request.args.get(name)
+    if raw is None or raw == '':
+        return None
+    if raw.lower() in ('1', 'true'):
+        return 1
+    if raw.lower() in ('0', 'false'):
+        return 0
+    raise ApiError(400, f'Параметр {name} має бути true або false')
