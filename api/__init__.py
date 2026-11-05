@@ -3,13 +3,15 @@
 Структура:
     api/errors.py        формат помилок, ApiError, JSON-обробники
     api/utils.py         читання JSON, валідація полів, пагінація
+    api/docs.py          Swagger UI (/apidocs/)
     api/v1/              products.py, orders.py, customers.py
-    api/v2/              customers.py (розширена версія)
+    api/v2/              products.py, customers.py (розширена версія)
 
 Підключення в app.py:  register_api(app)
 """
 from flask import Blueprint, jsonify
 
+from .docs import init_docs
 from .errors import register_error_handlers
 from .v1 import api_v1
 from .v2 import api_v2
@@ -31,7 +33,4 @@ def register_api(app):
     register_error_handlers(app)
     for blueprint in (root, api_v1, api_v2):
         app.register_blueprint(blueprint)
-
-    # TODO (учасник C, рівень 2): підключити Swagger для сторінки /apidocs/
-    #   from flasgger import Swagger
-    #   Swagger(app, template={...})
+    init_docs(app)
