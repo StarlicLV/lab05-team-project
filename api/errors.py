@@ -53,6 +53,13 @@ def register_error_handlers(app):
         message = DEFAULT_MESSAGES.get(error.code, error.description)
         return error_response(error.code, message)
 
+    @app.errorhandler(OverflowError)
+    def handle_overflow(error):
+        # Надто велике число (наприклад, id з 30 цифр) SQLite не приймає: це помилка клієнта, а не сервера
+        if not _is_api_request():
+            raise error
+        return error_response(400, 'Числове значення виходить за допустимі межі')
+
     @app.errorhandler(Exception)
     def handle_unexpected_error(error):
         if not _is_api_request():
